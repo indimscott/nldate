@@ -65,3 +65,7 @@ def test_weeks_from_tomorrow():
 
 def test_slash_date():
     assert parse("2025/12/04") == date(2025, 12, 4)
+
+
+def test_weeks_from_now():
+    assert parse("2 weeks from now", today=date(2025, 12, 1)) == date(2025, 12, 15)

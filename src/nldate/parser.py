@@ -17,6 +17,7 @@ from datetime import date, timedelta
 # Single words relative to the reference date.
 _RELATIVE_DAYS = {
     "today": 0,
+    "now": 0,
     "tomorrow": 1,
     "yesterday": -1,
 }
