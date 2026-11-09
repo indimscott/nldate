@@ -110,15 +110,19 @@ _UNIT_SIZES: dict[str, Duration] = {
 # --- Regex rules ------------------------------------------------------------
 
 # One "<n> <unit>" piece of a duration, e.g. "3 days" or "twenty-one weeks".
+# The number is optional: a bare unit like "day" means one of it.
 _DURATION_PART = re.compile(
-    r"(?P<num>\d+|[a-z]+(?:[- ][a-z]+)?) (?P<unit>day|week|month|year)s?"
+    r"(?:(?P<num>\d+|[a-z]+(?:[- ][a-z]+)?) )?(?P<unit>day|week|month|year)s?"
 )
 # Separators between duration pieces: "1 year and 2 months", "1 year, 2 days".
 _DURATION_SEPARATOR = re.compile(r",? and |, ")
 
-# "<duration> before/after/from <expression>". The duration is non-greedy, so
-# the split happens at the FIRST keyword and the rest is parsed recursively.
-_OFFSET_PATTERN = re.compile(r"(?P<dur>.+?) (?P<op>before|after|from) (?P<ref>.+)")
+# "[the] <duration> before/after/from <expression>". The duration is
+# non-greedy, so the split happens at the FIRST keyword and the rest is parsed
+# recursively. A leading "the" is allowed: "the day after tomorrow".
+_OFFSET_PATTERN = re.compile(
+    r"(?:the )?(?P<dur>.+?) (?P<op>before|after|from) (?P<ref>.+)"
+)
 _IN_PATTERN = re.compile(r"in (?P<dur>.+)")  # "in 3 days"
 _AGO_PATTERN = re.compile(r"(?P<dur>.+) ago")  # "3 days ago"
 _NEXT_LAST_PATTERN = re.compile(r"(?P<dir>next|last) (?P<word>[a-z]+)")
@@ -170,7 +174,7 @@ def _parse_duration(text: str) -> Duration:
         match = _DURATION_PART.fullmatch(piece)
         if not match:
             raise ValueError(f"Unrecognized duration: {text!r}")
-        amount = _parse_number(match["num"])
+        amount = _parse_number(match["num"]) if match["num"] else 1
         unit_months, unit_days = _UNIT_SIZES[match["unit"]]
         months += amount * unit_months
         days += amount * unit_days
