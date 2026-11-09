@@ -130,8 +130,11 @@ _ABSOLUTE_PATTERNS = [
     re.compile(rf"(?P<month>[a-z]+)\.? {_DAY}(?:,? {_YEAR})?"),
     # "1 December 2025", "1st of December, 2025"
     re.compile(rf"{_DAY} (?:of )?(?P<month>[a-z]+)\.?(?:,? {_YEAR})?"),
-    # ISO format: "2025-12-01"
-    re.compile(r"(?P<year>\d{4})-(?P<month>\d{1,2})-(?P<day>\d{1,2})"),
+    # Numeric year-month-day: "2025-12-01" or "2025/12/01". (?P=sep) makes the
+    # second separator match the first, so mixed forms like "2025-12/01" fail.
+    re.compile(
+        r"(?P<year>\d{4})(?P<sep>[-/])(?P<month>\d{1,2})(?P=sep)(?P<day>\d{1,2})"
+    ),
 ]
 
 
